@@ -5,6 +5,10 @@ import java.util.List;
 import com.eh7n.f1telemetry.data.elements.ButtonStatus;
 import com.eh7n.f1telemetry.data.elements.CarTelemetryData;
 
+import com.pi4j.io.gpio.*;
+import com.pi4j.util.CommandArgumentParser;
+import com.pi4j.util.Console;
+
 public class PacketCarTelemetryData extends Packet {
 	
 	private List<CarTelemetryData> carTelemetryData;
@@ -26,5 +30,18 @@ public class PacketCarTelemetryData extends Packet {
 	public void setButtonStatus(ButtonStatus buttonStatus) {
 		this.buttonStatus = buttonStatus;
 	}
+        
+        @Override
+        public void check_brake() {
+            // create GPIO controller instance
+            GpioController gpio = GpioFactory.getInstance();
+            Pin pin = CommandArgumentParser.getPin(
+                RaspiPin.class,    // pin provider class to obtain pin instance from
+                RaspiPin.GPIO_01 // default pin if no pin argument found
+              );            
+
+            GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);
+            pwm.setPwm(carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake() / 100 * 1024);
+        }
 
 }
