@@ -14,6 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import com.eh7n.f1telemetry.data.Packet;
 import com.eh7n.f1telemetry.util.PacketDeserializer;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinPwmOutput;
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.util.CommandArgumentParser;
 
 /**
  * The base class for the F1 2018 Telemetry app. Starts up a non-blocking I/O
@@ -134,11 +140,18 @@ public class F12018TelemetryUDPServer {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
+                final GpioController gpio = GpioFactory.getInstance();
+                final Pin pin = CommandArgumentParser.getPin(
+                        RaspiPin.class, // pin provider class to obtain pin instance from
+                        RaspiPin.GPIO_01 // default pin if no pin argument found
+                    );
+                final GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);
 		F12018TelemetryUDPServer.create()
 							.bindTo("0.0.0.0")
 							.onPort(20777)
 							.consumeWith((p) -> {
-									log.trace(p.toJSON());
+                                                            p.check_brake(pwm);
+							//log.trace(p.toJSON());
 								})
 							.start();
 	}
