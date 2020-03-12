@@ -21,6 +21,8 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.util.CommandArgumentParser;
 
+import com.eh7n.f1telemetry.gui.*;
+
 /**
  * The base class for the F1 2018 Telemetry app. Starts up a non-blocking I/O
  * UDP server to read packets from the F1 2018 video game and then hands those
@@ -140,6 +142,7 @@ public class F12018TelemetryUDPServer {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
+            /*
                 final GpioController gpio = GpioFactory.getInstance();
                 final Pin pin = CommandArgumentParser.getPin(
                         RaspiPin.class, // pin provider class to obtain pin instance from
@@ -154,5 +157,7 @@ public class F12018TelemetryUDPServer {
 							//log.trace(p.toJSON());
 								})
 							.start();
+            */
+                                                            
 	}
 }
