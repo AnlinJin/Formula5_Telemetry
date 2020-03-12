@@ -31,6 +31,7 @@ public class PacketCarTelemetryData extends Packet {
 		this.buttonStatus = buttonStatus;
 	}
         
+        /*
         @Override
         public void check_brake() {
             // create GPIO controller instance
@@ -43,5 +44,6 @@ public class PacketCarTelemetryData extends Packet {
             GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);
             pwm.setPwm(carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake() / 100 * 1024);
         }
+        */
 
 }
