@@ -134,7 +134,7 @@
             </sequential>
         </sshsession>
     </target>
-    <!--${debug-args-line}-->
+
     <target name="-run-remote-key" depends="init, jar, -init-remote-platform-properties, -copy-to-remote-platform, -ask-passphrase" if="remote.platform.auth.key">
         <remote:runwithkey/>
     </target>

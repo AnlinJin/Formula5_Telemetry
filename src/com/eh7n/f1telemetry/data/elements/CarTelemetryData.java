@@ -44,6 +44,7 @@ public class CarTelemetryData {
 	}
 
 	public int getBrake() {
+            System.out.println(brake);
 		return brake;
 	}
 
