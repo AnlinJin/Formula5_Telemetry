@@ -43,7 +43,7 @@ public class TracksScreen extends javax.swing.JFrame {
         });
 
         tracksLabel.setFont(new java.awt.Font("Arial", 1, 48)); // NOI18N
-        tracksLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Tracks/T1 - Paul Ricard.jpg"))); // NOI18N
+        tracksLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/eh7n/f1telemetry/gui/Tracks/T1.jpg"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

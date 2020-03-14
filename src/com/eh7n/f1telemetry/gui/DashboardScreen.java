@@ -56,13 +56,10 @@ public class DashboardScreen extends javax.swing.JFrame {
         speedLabel.setText("220 kmh");
 
         rpmBar.setForeground(new java.awt.Color(0, 204, 0));
-        rpmBar.setMaximum(15000);
         rpmBar.setToolTipText("");
-        rpmBar.setValue(7500);
 
         batteryBar.setForeground(new java.awt.Color(51, 204, 0));
         batteryBar.setOrientation(1);
-        batteryBar.setValue(50);
 
         batteryLabel.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         batteryLabel.setText("100 %");

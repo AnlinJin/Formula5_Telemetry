@@ -22,6 +22,11 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.util.CommandArgumentParser;
 
 import com.eh7n.f1telemetry.gui.*;
+import com.eh7n.f1telemetry.data.PacketCarTelemetryData;
+import com.eh7n.f1telemetry.data.elements.CarTelemetryData;
+import java.util.List;
+import java.util.logging.Level;
+
 
 /**
  * The base class for the F1 2018 Telemetry app. Starts up a non-blocking I/O
@@ -38,7 +43,8 @@ public class F12018TelemetryUDPServer {
 
 	private static final Logger log = LoggerFactory.getLogger(F12018TelemetryUDPServer.class);
 
-	private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+	//private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+        private static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 	private static final int DEFAULT_PORT = 20777;
 	private static final int MAX_PACKET_SIZE = 1341;
 
@@ -141,26 +147,45 @@ public class F12018TelemetryUDPServer {
 	 * @param args
 	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
+            InitialScreen initialScreen = new InitialScreen();
             
-
+            Thread thread1 = new Thread(){
+                @Override
+                public void run(){
+                    try {
+                        initialScreen.main(null);
+                    } catch (InterruptedException ex) {
+                        System.out.println("Launching thread failed");
+                        java.util.logging.Logger.getLogger(F12018TelemetryUDPServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            };
             
+            thread1.start();
+            
+            //InitialScreen initialScreen = new InitialScreen();
+            //initialScreen.main(null);
+                
             /*
                 final GpioController gpio = GpioFactory.getInstance();
                 final Pin pin = CommandArgumentParser.getPin(
                         RaspiPin.class, // pin provider class to obtain pin instance from
                         RaspiPin.GPIO_01 // default pin if no pin argument found
                     );
-                final GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);
+                final GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);*/
 		F12018TelemetryUDPServer.create()
-							.bindTo("0.0.0.0")
-							.onPort(20777)
+							.bindTo(DEFAULT_BIND_ADDRESS)
+							.onPort(DEFAULT_PORT)
 							.consumeWith((p) -> {
-                                                            p.check_brake(pwm);
-							//log.trace(p.toJSON());
+                                                            System.out.println("New packet received");
+                                                            //p.check_brake(pwm);
+                                                            initialScreen.readPacket(p);
+                                                            //log.trace(p.toJSON());
 								})
 							.start();
-            */
+                System.out.println("started");
+            
                                                             
 	}
 }

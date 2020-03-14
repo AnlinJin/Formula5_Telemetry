@@ -2,6 +2,7 @@ package com.eh7n.f1telemetry.data;
 
 import com.eh7n.f1telemetry.data.elements.Header;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pi4j.io.gpio.GpioPinPwmOutput;
 
 public abstract class Packet {
 	
@@ -26,4 +27,9 @@ public abstract class Packet {
 		return json;
 	}
 
+        /*
+        public void check_brake(GpioPinPwmOutput pwm){
+        }*/
+        public void check_brake(){}
+        
 }

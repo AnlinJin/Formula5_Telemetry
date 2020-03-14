@@ -68,7 +68,7 @@
           <Font name="Arial" size="48" style="1"/>
         </Property>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/Tracks/T1 - Paul Ricard.jpg"/>
+          <Image iconType="3" name="/com/eh7n/f1telemetry/gui/Tracks/T1.jpg"/>
         </Property>
       </Properties>
       <AuxValues>

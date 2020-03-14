@@ -1,5 +1,7 @@
 package com.eh7n.f1telemetry.gui;
 
+//imports
+import java.util.List;
 import java.awt.Toolkit;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +9,24 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
+
+//data imports
+import com.eh7n.f1telemetry.data.Packet;
+import com.eh7n.f1telemetry.data.PacketCarTelemetryData;
+import com.eh7n.f1telemetry.data.PacketSessionData;
+import com.eh7n.f1telemetry.data.PacketLapData;
+import com.eh7n.f1telemetry.data.PacketMotionData;
+import com.eh7n.f1telemetry.data.PacketCarStatusData;
+
+//elements imports
+import com.eh7n.f1telemetry.data.elements.CarTelemetryData;
+import com.eh7n.f1telemetry.data.elements.WheelData;
+import com.eh7n.f1telemetry.data.elements.CarMotionData;
+import com.eh7n.f1telemetry.data.elements.LapData;
+import com.eh7n.f1telemetry.data.elements.CarStatusData;
+        
+
+
 
 
 /**
@@ -25,26 +45,111 @@ public class InitialScreen extends javax.swing.JFrame {
     static DashboardScreen dashboardScreen = new DashboardScreen();
     static TracksScreen tracksScreen = new TracksScreen();
     static HScoresScreen hScoresScreen = new HScoresScreen();
-    static int refresh_rate = 100; //important! value in milliseconds, should be below 1000
+    static int refresh_rate = 300; //important! value in milliseconds, should be below 1000 & above 
     static int speed = 0;
     static int rpm = 0;
     static int gear = 1;
+    static float crr_lap_time = 0;
+    static float best_lap_time = 0;
     static int milliseconds = 0;
     static int seconds = 0;
     static int minutes = 0;
-    static int battery_level = 1000;
-    static int distance = 1532;
+    static int battery_level = 100;
+    static int distance = 1535;
     static int bat_temp = 0;
     static int brake_temp = 0;
+    static int rev_lights = 0;
     
     // VOOR ICONS
     static int track_id = 18;
     static boolean newIcon = false;
-    //static int distance_driven = 0;
+
     
     /**
      * methods 
      */
+    
+    public void readPacket(Packet p){
+        switch (p.getHeader().getPacketId()) {
+            
+            case 0:
+                // motion data packet
+                System.out.println("Packet type: Car motion data");
+                List<CarMotionData> carMotionData =  ((PacketMotionData) p).getCarMotionDataList();
+                break;
+            
+            case 1:
+                // session data packet
+                System.out.println("Packet type: Session data");
+                distance = ((PacketSessionData) p).getTrackLength();
+                track_id = ((PacketSessionData) p).getTrackId();
+                break;
+            
+            case 2:
+                // lap data packet
+                System.out.println("Packet type: Lap data");
+                List<LapData> lapData = ((PacketLapData) p).getLapDataList();
+                crr_lap_time = lapData.get(p.getHeader().getPlayerCarIndex()).getCurrentLapTime();
+                best_lap_time = lapData.get(p.getHeader().getPlayerCarIndex()).getBestLaptTime();
+                break;
+                
+            case 3:
+                // event data packet
+                System.out.println("Packet type: Event data");
+                break;
+                
+            case 4:
+                // participants data packet
+                System.out.println("Packet type: Participants data");
+                break;
+                
+            case 5:
+                // car setup data packet
+                System.out.println("Packet type: Car setup data");
+                break;
+                
+            case 6:
+                // car telemetry data packet
+                System.out.println("Packet type: Car telemetry data");
+                List<CarTelemetryData> carTelemetryData =  ((PacketCarTelemetryData) p).getCarTelemetryData();
+                speed = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getSpeed();
+                rpm = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getEngineRpm();
+                gear = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getGear();
+                bat_temp = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getEngineTemperature();
+                brake_temp  = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getBrakeTemperature().getRearRight();
+                rev_lights = carTelemetryData.get(p.getHeader().getPlayerCarIndex()).getRevLightsPercent();
+                System.out.println("brakes: " + brake_temp + "\t battery: " + bat_temp);
+                break;
+                
+            case 7:
+                // car status data packet
+                System.out.println("Packet type: Car status data");
+                List<CarStatusData> carStatusData = ((PacketCarStatusData) p).getCarStatuses();
+                float fuelInTank = carStatusData.get(p.getHeader().getPlayerCarIndex()).getFuelInTank();
+                float fuelCapacity = carStatusData.get(p.getHeader().getPlayerCarIndex()).getFuelCapacity();
+                battery_level = Math.round(fuelInTank / fuelCapacity);   
+                System.out.println("FUEL IN TANK: " + fuelInTank);
+                break;
+            
+            default:
+                System.out.println("Unrecognised packet");
+                break;
+        }
+        
+    }
+    
+    public void setSpeed(int speed){
+        if (speed != -1){
+            this.speed = speed;
+        }
+    }
+    
+    public void setRpm(int rpm){
+        if (rpm != -1){
+            this.rpm = rpm;
+        }
+    }
+    
     static public void closeDashboard(){
         displaySelected = false;
         dashboardScreen.dispose();
@@ -77,6 +182,7 @@ public class InitialScreen extends javax.swing.JFrame {
     }
     
     static public int getSpeed(){
+        /*
         Random rand = new Random();
         //slower acceleration at higher speeds
         if (speed < 60){
@@ -88,10 +194,17 @@ public class InitialScreen extends javax.swing.JFrame {
         } else {
             speed += rand.nextInt(5);
         }
+        */
+        //speed = CarTelemetryData.getSpeed();
         return speed;
     }
     
+    static public int getRevLights(){
+        return rev_lights;
+    }
+    
     static public int getRPM(){
+        /*
         Random rand = new Random();
         if (rpm < 15000){
             rpm += 2000 * rand.nextInt(2);
@@ -99,42 +212,51 @@ public class InitialScreen extends javax.swing.JFrame {
             rpm = 0;
             gear ++;
         }
+        */
         return rpm;
     }
     
     static public int getGear(){
+        /*
         if (gear > 8){
             return 8;
-        }
+        }*/
         return gear;
     }
     
     static public int getBattery(){
-        battery_level -= 0.1;
+        /*battery_level -= 0.1;*/
         return battery_level;
     }
     
     static public int getBatTemp(){
+        /*
         Random randint = new Random();
         if (bat_temp >= 60){
             bat_temp -= randint.nextInt(5);
         } else {
             bat_temp += randint.nextInt(3);
-        }
+        }*/
         return bat_temp;
     }
     
     static public int getBrakeTemp(){
+        /*
         Random randint = new Random();
         if (brake_temp >= 40){
             brake_temp -= randint.nextInt(5);
         } else {
             brake_temp += randint.nextInt(3);
-        }
+        }*/
         return brake_temp;
     }
     
+    static public String getBestTime(){
+        return best_lap_time + "";
+    }
+    
     static public String getCrrTime(){
+        /*
         if (milliseconds < 1000-refresh_rate){
             milliseconds += refresh_rate;
         } else {
@@ -145,13 +267,15 @@ public class InitialScreen extends javax.swing.JFrame {
                 seconds = 0;
                 minutes += 1;
             }          
-        }
-        return minutes + ":" + seconds + ":" + milliseconds;
+        }*/
+        return crr_lap_time + "";
+        //return minutes + ":" + seconds + ":" + milliseconds;
     }
     
     static public int getDistance(){
+        /*
         int driven = (speed * refresh_rate)/(3600);
-        distance -= driven;
+        distance -= driven;*/
         return (distance);
     }
    
@@ -167,7 +291,7 @@ public class InitialScreen extends javax.swing.JFrame {
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * regenerated by the Form Editor.r
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -180,6 +304,7 @@ public class InitialScreen extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Formula Simulator");
+        setPreferredSize(new java.awt.Dimension(480, 320));
         setSize(new java.awt.Dimension(480, 320));
 
         displayButton.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
@@ -206,23 +331,25 @@ public class InitialScreen extends javax.swing.JFrame {
             }
         });
 
-        logoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/formula_logo.png"))); // NOI18N
+        logoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/eh7n/f1telemetry/gui/images/formula_logo.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(logoLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
                         .addComponent(displayButton, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
+                        .addGap(18, 18, 18)
                         .addComponent(tracksButton, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(32, 32, 32)
-                        .addComponent(hScoresButton))
-                    .addComponent(logoLabel))
-                .addContainerGap(253, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(hScoresButton)))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -234,7 +361,7 @@ public class InitialScreen extends javax.swing.JFrame {
                     .addComponent(tracksButton, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(hScoresButton, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(displayButton, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(197, Short.MAX_VALUE))
+                .addContainerGap(70, Short.MAX_VALUE))
         );
 
         pack();
@@ -287,6 +414,7 @@ public class InitialScreen extends javax.swing.JFrame {
         //add code that doesn't have to be refreshed below
         //...
         //add code that doesn't have to be refreshed above
+        System.out.println("GUI Launched");
         initialScreen.setVisible(true);
         
         /* Create and display the form */
@@ -308,15 +436,22 @@ public class InitialScreen extends javax.swing.JFrame {
                 }
                 // add your code to be looped above 
                 if (displaySelected){
-                    dashboardScreen.rpmBar.setValue(getRPM());
+                    dashboardScreen.rpmBar.setValue(getRevLights());
                     dashboardScreen.rpmLabel.setText(getRPM()+"");
                     dashboardScreen.speedLabel.setText(getSpeed()+" kmh");
-                    dashboardScreen.gearLabel.setText("G"+getGear());
-                    dashboardScreen.batteryBar.setValue(getBattery()/10);
-                    dashboardScreen.batteryLabel.setText(getBattery()/10+" %");
+                    
+                    if (gear == -1){
+                        dashboardScreen.gearLabel.setText("R");
+                    } else {
+                        dashboardScreen.gearLabel.setText("G"+getGear());
+                    }
+                    
+                    dashboardScreen.batteryBar.setValue(getBattery());
+                    dashboardScreen.batteryLabel.setText(getBattery()+" %");
                     dashboardScreen.batTempLabel.setText(getBatTemp()+" °C");
                     dashboardScreen.brakeTempLabel.setText(getBrakeTemp()+" °C");
                     dashboardScreen.currentLabel.setText("Current: " + getCrrTime());
+                    dashboardScreen.bestLabel.setText("Best: " + getBestTime());
                     dashboardScreen.distanceLabel.setText(getDistance()+" m");
                 }
             }

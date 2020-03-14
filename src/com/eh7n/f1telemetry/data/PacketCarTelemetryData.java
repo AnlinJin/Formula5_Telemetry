@@ -31,9 +31,10 @@ public class PacketCarTelemetryData extends Packet {
 		this.buttonStatus = buttonStatus;
 	}
         
-        /*
+        
         @Override
         public void check_brake() {
+            System.out.println("reached");
             // create GPIO controller instance
             GpioController gpio = GpioFactory.getInstance();
             Pin pin = CommandArgumentParser.getPin(
@@ -41,9 +42,8 @@ public class PacketCarTelemetryData extends Packet {
                 RaspiPin.GPIO_01 // default pin if no pin argument found
               );            
 
-            GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin);
+            GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin); 
+            System.out.println("brake: "+carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake());
             pwm.setPwm(carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake() / 100 * 1024);
-        }
-        */
-
+        }       
 }
