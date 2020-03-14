@@ -34,4 +34,9 @@ public abstract class Packet {
         
         public void to_short() {}
 
+        /*
+        public void check_brake(GpioPinPwmOutput pwm){
+        }*/
+        public void check_brake(){}
+        
 }

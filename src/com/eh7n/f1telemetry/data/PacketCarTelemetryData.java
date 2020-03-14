@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sun.security.x509.X500Name;
 
+
 public class PacketCarTelemetryData extends Packet implements Serializable {
 
     private List<CarTelemetryData> carTelemetryData;
@@ -53,17 +54,19 @@ public class PacketCarTelemetryData extends Packet implements Serializable {
     }
 
     @Override
-    public void check_brake(GpioPinPwmOutput pwm) {
+    public void check_brake() {
+            System.out.println("reached");
+            // create GPIO controller instance
+            GpioController gpio = GpioFactory.getInstance();
+            Pin pin = CommandArgumentParser.getPin(
+                RaspiPin.class,    // pin provider class to obtain pin instance from
+                RaspiPin.GPIO_01 // default pin if no pin argument found
+              );            
 
-        //com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS);
-        //com.pi4j.wiringpi.Gpio.pwmSetRange(1000);
-        //com.pi4j.wiringpi.Gpio.pwmSetClock(500);
-        int pwmvalue = carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake() * 1024 / 100;
-        pwm.setPwm(pwmvalue);
-        System.out.println("pwmvalue is " + pwmvalue);
- 
-
-    }
+            GpioPinPwmOutput pwm = gpio.provisionPwmOutputPin(pin); 
+            System.out.println("brake: "+carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake());
+            pwm.setPwm(carTelemetryData.get(super.getHeader().getPlayerCarIndex()).getBrake() / 100 * 1024);
+    }       
 
     @Override
     public void to_short() {
@@ -88,6 +91,6 @@ public class PacketCarTelemetryData extends Packet implements Serializable {
         }
        
     }
-
-
 }
+
+
