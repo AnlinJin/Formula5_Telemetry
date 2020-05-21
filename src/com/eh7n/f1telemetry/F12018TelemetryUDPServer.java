@@ -148,21 +148,21 @@ public class F12018TelemetryUDPServer {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
-            InitialScreen initialScreen = new InitialScreen();
-            
-            Thread thread1 = new Thread(){
-                @Override
-                public void run(){
-                    try {
-                        initialScreen.main(null);
-                    } catch (InterruptedException ex) {
-                        System.out.println("Launching thread failed");
-                        java.util.logging.Logger.getLogger(F12018TelemetryUDPServer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            };
-            
-            thread1.start();
+//            InitialScreen initialScreen = new InitialScreen();
+//            
+//            Thread thread1 = new Thread(){
+//                @Override
+//                public void run(){
+//                    try {
+//                        initialScreen.main(null);
+//                    } catch (InterruptedException ex) {
+//                        System.out.println("Launching thread failed");
+//                        java.util.logging.Logger.getLogger(F12018TelemetryUDPServer.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//            };
+//            
+//            thread1.start();
             
             //InitialScreen initialScreen = new InitialScreen();
             //initialScreen.main(null);
@@ -179,8 +179,9 @@ public class F12018TelemetryUDPServer {
 							.onPort(DEFAULT_PORT)
 							.consumeWith((p) -> {
                                                             System.out.println("New packet received");
+                                                            p.to_database();
                                                             //p.check_brake(pwm);
-                                                            initialScreen.readPacket(p);
+                                                            //initialScreen.readPacket(p);
                                                             //log.trace(p.toJSON());
 								})
 							.start();
